@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alke Wallet - Enviar Dinero</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .contacto-item {
+            cursor: pointer;
+        }
+
+        .seleccionado {
+            background-color: #d1e7dd !important;
+        }
+    </style>
+</head>
+
+<body class="bg-light">
+
+    <div class="container py-5" style="max-width: 500px;">
+        <div class="card p-4 shadow">
+            <h3 class="mb-4 text-warning text-dark">Enviar Dinero</h3>
+            <div id="alert-container"></div>
+
+            <div class="mb-3">
+                <label class="form-label">Tu Saldo Disponible</label>
+                <input type="text" id="saldoDisponibleInput" class="form-control" disabled>
+            </div>
+
+            <div class="mb-3">
+                <input type="text" id="searchContact" class="form-control" placeholder="Buscar contacto...">
+            </div>
+
+            <ul class="list-group mb-3" id="listaContactos">
+                <li class="list-group-item contacto-item" data-nombre="Juan Perez" data-alias="juan.pago">Juan Perez
+                    (Alias: juan.pago) - CBU: 1234567890123456789012</li>
+                <li class="list-group-item contacto-item" data-nombre="Maria Lopez" data-alias="maria.cash">Maria Lopez
+                    (Alias: maria.cash) - CBU: 9876543210987654321098</li>
+            </ul>
+
+            <div id="seccionTransferencia" class="d-none bg-white p-3 border rounded mb-3">
+                <div class="mb-3">
+                    <label for="montoTransferir" class="form-label">Monto a Enviar</label>
+                    <input type="number" id="montoTransferir" class="form-control" min="1">
+                </div>
+                <button id="btnEnviarDinero" class="btn btn-warning w-100">Confirmar Envío</button>
+            </div>
+
+            <hr>
+            <button id="btnMostrarFormContacto" class="btn btn-outline-primary w-100 mb-3">Agregar nuevo
+                contacto</button>
+
+            <div id="formContactoContainer" class="card p-3 d-none">
+                <form id="newContactForm">
+                    <div class="mb-2">
+                        <label class="form-label">Nombre</label>
+                        <input type="text" id="newNombre" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">Alias</label>
+                        <input type="text" id="newAlias" class="form-control" required>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label">CBU (22 dígitos)</label>
+                        <input type="text" id="newCbu" class="form-control" maxlength="22" required>
+                    </div>
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="submit" class="btn btn-success w-50">Guardar</button>
+                        <button type="button" id="btnCancelarContacto" class="btn btn-danger w-50">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+
+            <a href="./menu.html" class="btn btn-link w-100 mt-3">Volver</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let saldoEnMemoria = parseFloat(localStorage.getItem('saldo')) || 0;
+            $('#saldoDisponibleInput').val('$' + saldoEnMemoria.toLocaleString('es-CL'));
+
+            $('#btnMostrarFormContacto').click(function () {
+                $('#formContactoContainer').removeClass('d-none');
+            });
+
+            $('#btnCancelarContacto').click(function () {
+                $('#formContactoContainer').addClass('d-none');
+                $('#newContactForm')[0].reset();
+            });
+
+            $('#newContactForm').submit(function (e) {
+                e.preventDefault();
+                let nombre = $('#newNombre').val().trim();
+                let alias = $('#newAlias').val().trim();
+                let cbu = $('#newCbu').val().trim();
+
+                let cbuRegex = /^[0-9]{22}$/;
+                if (!cbuRegex.test(cbu)) {
+                    alert("El CBU debe tener 22 dígitos");
+                    return;
+                }
+
+                let nuevoItem = '<li class="list-group-item contacto-item" data-nombre="' + nombre + '" data-alias="' + alias + '">' + nombre + ' (Alias: ' + alias + ') - CBU: ' + cbu + '</li>';
+                $('#listaContactos').append(nuevoItem);
+                $('#formContactoContainer').addClass('d-none');
+                $('#newContactForm')[0].reset();
+            });
+
+            $('#searchContact').on('keyup', function () {
+                let valor = $(this).val().toLowerCase();
+                $('#listaContactos .contacto-item').each(function () {
+                    let nombre = $(this).attr('data-nombre').toLowerCase();
+                    let alias = $(this).attr('data-alias').toLowerCase();
+                    if (nombre.indexOf(valor) > -1 || alias.indexOf(valor) > -1) {
+                        $(this).removeClass('d-none');
+                    } else {
+                        $(this).addClass('d-none');
+                    }
+                });
+            });
+
+            $(document).on('click', '.contacto-item', function () {
+                $('.contacto-item').removeClass('seleccionado');
+                $(this).addClass('seleccionado');
+                $('#seccionTransferencia').removeClass('d-none');
+                $('#alert-container').empty();
+            });
+
+            $('#btnEnviarDinero').click(function () {
+                let destino = $('.seleccionado').attr('data-nombre');
+                let monto = parseFloat($('#montoTransferir').val());
+
+                if (isNaN(monto) || monto <= 0) {
+                    let errMonto = '<div class="alert alert-danger">Ingrese un monto válido</div>';
+                    $('#alert-container').html(errMonto);
+                    return;
+                }
+
+                if (monto > saldoEnMemoria) {
+                    let errSaldo = '<div class="alert alert-danger">Saldo insuficiente para realizar la transacción</div>';
+                    $('#alert-container').html(errSaldo);
+                    return;
+                }
+
+                saldoEnMemoria = saldoEnMemoria - monto;
+                localStorage.setItem('saldo', saldoEnMemoria.toString());
+
+                let historial = JSON.parse(localStorage.getItem('historialTransacciones')) || [];
+                let nuevaTransaccion = {
+                    id: Date.now(),
+                    tipo: 'compra',
+                    monto: monto,
+                    detalle: 'Envío a: ' + destino
+                };
+                historial.push(nuevaTransaccion);
+                localStorage.setItem('historialTransacciones', JSON.stringify(historial));
+
+                $('#saldoDisponibleInput').val('$' + saldoEnMemoria.toLocaleString('es-CL'));
+
+                let exitoAlert = '<div class="alert alert-success">Envío realizado con éxito a ' + destino + '</div>';
+                $('#alert-container').html(exitoAlert);
+
+                $('#seccionTransferencia').addClass('d-none');
+                $('#montoTransferir').val('');
+                $('.contacto-item').removeClass('seleccionado');
+            });
+        });
+    </script>
+</body>
+
+</html>

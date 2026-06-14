@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ NeonWallet - Enviar</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="d-flex align-items-center justify-content-center">
+
+    <div id="alertBox" class="custom-alert"></div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-5">
+                <div class="card wallet-card p-4">
+                    <h2 class="text-center mb-4">💸 Enviar Dinero</h2>
+                    
+                    <form id="sendForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-info">Selecciona Contacto de la Agenda</label>
+                            <select id="contactSelect" class="form-select bg-dark text-white border-secondary" required>
+                                <option value="" disabled selected>-- Elige a quién enviar --</option>
+                                <option value="Felipe Mella">Felipe Mella (Alias: felipe.neon)</option>
+                                <option value="Antonia Astudillo">Antonia Astudillo (Alias: anto.wallet)</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-info">Monto a Enviar</label>
+                            <input type="number" id="sendAmount" class="form-control bg-dark text-white border-secondary" placeholder="$0" required min="1">
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-neon-primary">⚡ Enviar Dinero Ahora</button>
+                            <button type="button" class="btn btn-neon-secondary" data-bs-toggle="modal" data-bs-target="#contactModal">
+                                ➕ Agregar nuevo contacto
+                            </button>
+                            <a href="menu.html" class="btn btn-outline-secondary text-white border-0 mt-2">Volver al menú</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="contactModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-info" style="border-radius: 20px;">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title text-info fw-bold">🔥 Nuevo Contacto Spark</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newContactForm">
+                        <div class="mb-2">
+                            <label class="form-label small">Nombre y Apellido</label>
+                            <input type="text" id="cName" class="form-control bg-secondary text-white border-0" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">Número de CBU</label>
+                            <input type="number" id="cCbu" class="form-control bg-secondary text-white border-0" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">Alias</label>
+                            <input type="text" id="cAlias" class="form-control bg-secondary text-white border-0" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small">Nombre del Banco</label>
+                            <input type="text" id="cBanco" class="form-control bg-secondary text-white border-0" required>
+                        </div>
+                        <button type="submit" class="btn btn-neon-secondary w-100">Guardar en la Red 💾</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Lógica para añadir contactos de manera interactiva al select del formulario
+        document.getElementById('newContactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('cName').value;
+            const alias = document.getElementById('cAlias').value;
+            
+            const select = document.getElementById('contactSelect');
+            const newOption = document.createElement('option');
+            newOption.value = name;
+            newOption.text = `${name} (Alias: ${alias})`;
+            select.add(newOption);
+            newOption.selected = true;
+
+            // Cerrar modal automáticamente
+            const modal = bootstrap.Modal.getInstance(document.getElementById('contactModal'));
+            modal.hide();
+            document.getElementById('newContactForm').reset();
+        });
+
+        // Lógica de Envío de Dinero
+        document.getElementById('sendForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const contact = document.getElementById('contactSelect').value;
+            const amount = parseFloat(document.getElementById('sendAmount').value);
+            let currentBalance = parseFloat(localStorage.getItem('balance') || '0');
+            const alertBox = document.getElementById('alertBox');
+
+            if(amount > currentBalance) {
+                alertBox.style.backgroundColor = '#ff007f';
+                alertBox.style.color = '#fff';
+                alertBox.innerText = "❌ Fondos insuficientes para esta transferencia.";
+                alertBox.style.display = 'block';
+                setTimeout(() => { alertBox.style.display = 'none'; }, 2500);
+                return;
+            }
+
+            // Descontar saldo
+            let newBalance = currentBalance - amount;
+            localStorage.setItem('balance', newBalance);
+
+            // Registrar movimiento
+            let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            transactions.unshift({
+                type: 'send',
+                amount: amount,
+                details: `Envío a ${contact}`,
+                date: 'Hoy'
+            });
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+
+            // Confirmación exitosa
+            alertBox.style.backgroundColor = '#00dfa2';
+            alertBox.style.color = '#000';
+            alertBox.innerText = `💸 ¡Transferencia enviada a ${contact}! Saldo actualizado.`;
+            alertBox.style.display = 'block';
+
+            setTimeout(() => {
+                window.location.href = 'menu.html';
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

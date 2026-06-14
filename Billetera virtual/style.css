@@ -1,0 +1,60 @@
+/* Fondos y tipografía general */
+body {
+    background-color: #f4f7f6;
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    color: #333;
+}
+
+/* Tarjetas principales (Cards) */
+.wallet-card {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    background: #ffffff;
+}
+
+/* Estilo para los encabezados h2 */
+h2 {
+    color: #1a2530;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+/* Botones personalizados */
+.btn-wallet-primary {
+    background-color: #0066ff;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+}
+
+.btn-wallet-primary:hover {
+    background-color: #0052cc;
+    color: white;
+    transform: translateY(-1px);
+}
+
+.btn-wallet-secondary {
+    background-color: #e6f0ff;
+    border: none;
+    color: #0066ff;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.btn-wallet-secondary:hover {
+    background-color: #d0e4ff;
+    color: #0052cc;
+}
+
+/* Saldo destacado */
+.balance-display {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #2ec4b6;
+    margin: 15px 0;
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alke Wallet - Movimientos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+    <div class="container py-5" style="max-width: 500px;">
+        <div class="card p-4 shadow">
+            <h3 class="mb-4 text-secondary">Últimos Movimientos</h3>
+
+            <div class="mb-4">
+                <label for="filtroTipo" class="form-label">Filtrar por tipo</label>
+                <select id="filtroTipo" class="form-select">
+                    <option value="todos">Todos</option>
+                    <option value="compra">Compras / Envíos</option>
+                    <option value="deposito">Depósitos</option>
+                    <option value="transferencia_recibida">Transferencias Recibidas</option>
+                </select>
+            </div>
+
+            <ul class="list-group" id="listaMovimientosContainer"></ul>
+
+            <a href="./menu.html" class="btn btn-link w-100 mt-4">Volver</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            let transaccionesGuardadas = JSON.parse(localStorage.getItem('historialTransacciones'));
+
+            if (transaccionesGuardadas === null) {
+                transaccionesGuardadas = [
+                    { id: 1, tipo: 'compra', monto: 4500, detalle: 'Supermercado Líder' },
+                    { id: 2, tipo: 'deposito', monto: 15000, detalle: 'Cajero Automático' },
+                    { id: 3, tipo: 'transferencia_recibida', monto: 25000, detalle: 'De: Pedro Marmol' }
+                ];
+                localStorage.setItem('historialTransacciones', JSON.stringify(transaccionesGuardadas));
+            }
+
+            function getTipoTransaccion(tipo) {
+                if (tipo === 'compra') return 'Envío / Compra';
+                if (tipo === 'deposito') return 'Depósito';
+                if (tipo === 'transferencia_recibida') return 'Transferencia Recibida';
+                return 'Movimiento';
+            }
+
+            function mostrarUltimosMovimientos(filtro) {
+                $('#listaMovimientosContainer').empty();
+
+                let listaActual = JSON.parse(localStorage.getItem('historialTransacciones')) || [];
+
+                listaActual.forEach(function (t) {
+                    if (filtro === 'todos' || t.tipo === filtro) {
+                        let itemHtml = '<li class="list-group-item d-flex justify-content-between"><div><strong>' + t.detalle + '</strong><br><small>' + getTipoTransaccion(t.tipo) + '</small></div><span>$' + t.monto.toLocaleString('es-CL') + '</span></li>';
+                        $('#listaMovimientosContainer').append(itemHtml);
+                    }
+                });
+            }
+
+            mostrarUltimosMovimientos('todos');
+
+            $('#filtroTipo').change(function () {
+                let filtroSeleccionado = $(this).val();
+                mostrarUltimosMovimientos(filtroSeleccionado);
+            });
+        });
+    </script>
+</body>
+
+</html>

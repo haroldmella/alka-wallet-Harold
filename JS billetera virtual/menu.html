@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ NeonWallet - Menú</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="d-flex align-items-center justify-content-center">
+
+    <div id="alertBox" class="custom-alert" style="background-color: #0079ff; color: white;"></div>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12 col-md-8 col-lg-5">
+                <div class="card wallet-card p-4 text-center">
+                    <h2>👾 Menú Principal</h2>
+                    
+                    <div class="balance-box my-4 p-3">
+                        <span class="text-info fw-bold text-uppercase small">Tu energía digital</span>
+                        <div class="balance-display" id="balanceDisplay">$0</div>
+                    </div>
+
+                    <div class="d-grid gap-3">
+                        <button onclick="redirect('deposit.html', 'Depositar 💰')" class="btn btn-neon-primary py-3">Depositar</button>
+                        <button onclick="redirect('sendmoney.html', 'Enviar Dinero 💸')" class="btn btn-neon-primary py-3">Enviar Dinero</button>
+                        <button onclick="redirect('transactions.html', 'Últimos Movimientos 📊')" class="btn btn-neon-secondary py-3">Últimos Movimientos</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cargar saldo dinámicamente desde LocalStorage
+        const currentBalance = localStorage.getItem('balance') || '0';
+        document.getElementById('balanceDisplay').innerText = `$${Number(currentBalance).toLocaleString('es-CL')}`;
+
+        // Función de redirección con leyenda interactiva
+        function redirect(page, name) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.innerText = `Redirigiendo a: ${name}... ✨`;
+            alertBox.style.display = 'block';
+            
+            setTimeout(() => {
+                window.location.href = page;
+            }, 1200);
+        }
+    </script>
+</body>
+</html>

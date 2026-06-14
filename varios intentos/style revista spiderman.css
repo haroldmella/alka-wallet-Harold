@@ -1,0 +1,55 @@
+#logo {
+  width: 100px;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav ul {
+  display: flex;
+  color: black;
+  list-style-type: none;
+  gap: 10px;
+}
+
+.nav ul li:hover {
+  font-weight: bold;
+  text-decoration: underline;
+  color: red;
+}
+
+.card {
+  background: rgb(106, 105, 97);
+  color: white;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.card.villano h3 {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: rgb(12, 12, 12);
+}
+
+.card.heroe {
+  background: green ;
+}
+
+.card.heroe h3 {
+  color: rgb(139, 204, 229);
+  font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+}
+
+#pablo_perez {
+  text-decoration: underline;
+  color: yellow;
+  font-weight: bold;
+  font-size: 20px;
+  font-style: italic;
+}
+
+#pablo_perez:hover {
+  color: blue;
+}

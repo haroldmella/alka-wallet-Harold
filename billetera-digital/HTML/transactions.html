@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billetera Digital - Últimos Movimientos</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+
+    <div class="container py-5" style="max-width: 600px;">
+        <div class="card p-4 shadow">
+            <h3 class="mb-4 text-secondary">Últimos Movimientos</h3>
+
+            <div class="mb-4">
+                <label for="filtroTipo" class="form-label font-weight-bold">Filtrar por tipo de movimiento:</label>
+                <select id="filtroTipo" class="form-select">
+                    <option value="todos">Todos los movimientos</option>
+                    <option value="compra">Compras</option>
+                    <option value="deposito">Depósitos</option>
+                    <option value="transferencia_recibida">Transferencias Recibidas</option>
+                </select>
+            </div>
+
+            <ul class="list-group" id="listaMovimientosContainer">
+            </ul>
+
+            <a href="./menu.html" class="btn btn-link w-100 mt-4">Volver al Menú</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        // Lista ficticia de transacciones según la consigna
+        const listaTransacciones = [
+            { id: 1, tipo: 'compra', monto: 4500, detalle: 'Supermercado Líder' },
+            { id: 2, tipo: 'deposito', monto: 15000, detalle: 'Cajero Automático' },
+            { id: 3, tipo: 'transferencia_recibida', monto: 25000, detalle: 'De: Pedro Marmol' },
+            { id: 4, tipo: 'compra', monto: 8900, detalle: 'Papa John\'s Pizza' },
+            { id: 5, tipo: 'deposito', monto: 50000, detalle: 'Depósito por Ventanilla' }
+        ];
+
+        // Función para transformar el tipo técnico en algo legible
+        function getTipoTransaccion(tipo) {
+            switch (tipo) {
+                case 'compra': return '🛒 Compra';
+                case 'deposito': return '💰 Depósito';
+                case 'transferencia_recibida': return '📲 Transferencia Recibida';
+                default: return 'Movimiento';
+            }
+        }
+
+        // Función para renderizar la lista basada en el filtro seleccionado
+        function mostrarUltimosMovimientos(filtro) {
+            // Limpiamos el contenedor por completo antes de reescribir
+            $('#listaMovimientosContainer').empty();
+
+            listaTransacciones.forEach(function (transaccion) {
+                // Si el filtro es 'todos' O coincide exactamente con el tipo de la transacción
+                if (filtro === 'todos' || transaccion.tipo === filtro) {
+
+                    // Definimos un color de Bootstrap según el tipo
+                    let badgeColor = 'bg-secondary';
+                    if (transaccion.tipo === 'deposito') badgeColor = 'bg-success';
+                    if (transaccion.tipo === 'transferencia_recibida') badgeColor = 'bg-info text-dark';
+                    if (transaccion.tipo === 'compra') badgeColor = 'bg-danger';
+
+                    let itemHtml = `
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>${transaccion.detalle}</strong> <br>
+                                <small class="text-muted">${getTipoTransaccion(transaccion.tipo)}</small>
+                            </div>
+                            <span class="badge ${badgeColor} rounded-pill">$${transaccion.monto.toLocaleString('es-CL')}</span>
+                        </li>
+                    `;
+                    // Añadimos el elemento con jQuery
+                    $('#listaMovimientosContainer').append(itemHtml);
+                }
+            });
+        }
+
+        // Al cargar la página por primera vez, mostramos todos
+        mostrarUltimosMovimientos('todos');
+
+        // Escuchar cuando el usuario cambia la opción del selector (evento change)
+        $('#filtroTipo').change(function () {
+            let filtroSeleccionado = $(this).val();
+            // Llamamos a la función pasándole el valor seleccionado
+            mostrarUltimosMovimientos(filtroSeleccionado);
+        });
+    </script>
+</body>
+
+</html>
