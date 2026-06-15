@@ -36,8 +36,12 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
         $(document).ready(function () {
-            let saldoEnMemoria = parseFloat(localStorage.getItem('saldo')) || 0;
-            $('#saldoActualInput').val('$' + saldoEnMemoria.toLocaleString('es-CL'));
+            let saldoActualNum = 0;
+
+            $.getJSON('http://localhost:3000/usuarios/1', function (usuario) {
+                saldoActualNum = parseFloat(usuario.saldo);
+                $('#saldoActualInput').val('$' + saldoActualNum.toLocaleString('es-CL'));
+            });
 
             $('#depositForm').submit(function (e) {
                 e.preventDefault();
@@ -47,27 +51,37 @@
                     return;
                 }
 
-                let nuevoSaldo = saldoEnMemoria + montoADepositar;
-                localStorage.setItem('saldo', nuevoSaldo.toString());
+                let nuevoSaldo = saldoActualNum + montoADepositar;
 
-                let historial = JSON.parse(localStorage.getItem('historialTransacciones')) || [];
-                let nuevaTransaccion = {
-                    id: Date.now(),
-                    tipo: 'deposito',
-                    monto: montoADepositar,
-                    detalle: 'Depósito de fondos'
-                };
-                historial.push(nuevaTransaccion);
-                localStorage.setItem('historialTransacciones', JSON.stringify(historial));
+                $.ajax({
+                    url: 'http://localhost:3000/usuarios/1',
+                    type: 'PATCH',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ saldo: nuevoSaldo }),
+                    success: function () {
+                        let nuevaTransaccion = {
+                            tipo: 'deposito',
+                            monto: montoADepositar,
+                            detalle: 'Depósito de fondos'
+                        };
 
-                $('#leyendaMonto').removeClass('d-none').text('Monto depositado: $' + montoADepositar.toLocaleString('es-CL'));
+                        $.ajax({
+                            url: 'http://localhost:3000/transacciones',
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify(nuevaTransaccion),
+                            success: function () {
+                                $('#leyendaMonto').removeClass('d-none').text('Monto depositado: $' + montoADepositar.toLocaleString('es-CL'));
+                                let exitoAlert = '<div class="alert alert-success">Depósito realizado con éxito</div>';
+                                $('#alert-container').html(exitoAlert);
 
-                let exitoAlert = '<div class="alert alert-success">Depósito realizado con éxito</div>';
-                $('#alert-container').html(exitoAlert);
-
-                setTimeout(function () {
-                    window.location.href = './menu.html';
-                }, 2000);
+                                setTimeout(function () {
+                                    window.location.href = './menu.html';
+                                }, 2000);
+                            }
+                        });
+                    }
+                });
             });
         });
     </script>

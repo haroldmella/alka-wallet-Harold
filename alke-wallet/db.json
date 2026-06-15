@@ -1,0 +1,69 @@
+{
+  "usuarios": [
+    {
+      "id": "1",
+      "email": "rodrigo@holamundo.cl",
+      "password": "Rodrigo7899#",
+      "saldo": 120000
+    }
+  ],
+  "contactos": [
+    {
+      "id": "1",
+      "nombre": "Nelson Retamal",
+      "alias": "nelson.retamal",
+      "cbu": "1111111111111111111111"
+    },
+    {
+      "id": "2",
+      "nombre": "Walton Alexis",
+      "alias": "walton.alexis",
+      "cbu": "2222222222222222222222"
+    },
+    {
+      "id": "3",
+      "nombre": "Abraham Maximiliano",
+      "alias": "abraham.max",
+      "cbu": "3333333333333333333333"
+    },
+    {
+      "nombre": "Harold Mella",
+      "alias": "Hama",
+      "cbu": "1316548798489489498489",
+      "id": "pEFPdXk-7HE"
+    }
+  ],
+  "transacciones": [
+    {
+      "id": "1",
+      "tipo": "compra",
+      "monto": 4500,
+      "detalle": "El Bar de Rene"
+    },
+    {
+      "id": "2",
+      "tipo": "deposito",
+      "monto": 15000,
+      "detalle": "Cajero Automático"
+    },
+    {
+      "id": "3",
+      "tipo": "transferencia_recibida",
+      "monto": 25000,
+      "detalle": "De: Hermanos Peralta"
+    },
+    {
+      "tipo": "deposito",
+      "monto": 100000,
+      "detalle": "Depósito de fondos",
+      "id": "8LuKLcvxCGY"
+    },
+    {
+      "tipo": "compra",
+      "monto": 30000,
+      "detalle": "Envío a: Harold Mella",
+      "id": "YtAhE4gYp64"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

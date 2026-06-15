@@ -33,12 +33,7 @@
                 <input type="text" id="searchContact" class="form-control" placeholder="Buscar contacto...">
             </div>
 
-            <ul class="list-group mb-3" id="listaContactos">
-                <li class="list-group-item contacto-item" data-nombre="Juan Perez" data-alias="juan.pago">Juan Perez
-                    (Alias: juan.pago) - CBU: 1234567890123456789012</li>
-                <li class="list-group-item contacto-item" data-nombre="Maria Lopez" data-alias="maria.cash">Maria Lopez
-                    (Alias: maria.cash) - CBU: 9876543210987654321098</li>
-            </ul>
+            <ul class="list-group mb-3" id="listaContactos"></ul>
 
             <div id="seccionTransferencia" class="d-none bg-white p-3 border rounded mb-3">
                 <div class="mb-3">
@@ -80,8 +75,24 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
         $(document).ready(function () {
-            let saldoEnMemoria = parseFloat(localStorage.getItem('saldo')) || 0;
-            $('#saldoDisponibleInput').val('$' + saldoEnMemoria.toLocaleString('es-CL'));
+            let saldoEnMemoria = 0;
+
+            function cargarContactos() {
+                $('#listaContactos').empty();
+                $.getJSON('http://localhost:3000/contactos', function (contactos) {
+                    contactos.forEach(function (c) {
+                        let item = '<li class="list-group-item contacto-item" data-nombre="' + c.nombre + '" data-alias="' + c.alias + '">' + c.nombre + ' (Alias: ' + c.alias + ') - CBU: ' + c.cbu + '</li>';
+                        $('#listaContactos').append(item);
+                    });
+                });
+            }
+
+            $.getJSON('http://localhost:3000/usuarios/1', function (usuario) {
+                saldoEnMemoria = parseFloat(usuario.saldo);
+                $('#saldoDisponibleInput').val('$' + saldoEnMemoria.toLocaleString('es-CL'));
+            });
+
+            cargarContactos();
 
             $('#btnMostrarFormContacto').click(function () {
                 $('#formContactoContainer').removeClass('d-none');
@@ -104,10 +115,19 @@
                     return;
                 }
 
-                let nuevoItem = '<li class="list-group-item contacto-item" data-nombre="' + nombre + '" data-alias="' + alias + '">' + nombre + ' (Alias: ' + alias + ') - CBU: ' + cbu + '</li>';
-                $('#listaContactos').append(nuevoItem);
-                $('#formContactoContainer').addClass('d-none');
-                $('#newContactForm')[0].reset();
+                let nuevoContacto = { nombre: nombre, alias: alias, cbu: cbu };
+
+                $.ajax({
+                    url: 'http://localhost:3000/contactos',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(nuevoContacto),
+                    success: function () {
+                        cargarContactos();
+                        $('#formContactoContainer').addClass('d-none');
+                        $('#newContactForm')[0].reset();
+                    }
+                });
             });
 
             $('#searchContact').on('keyup', function () {
@@ -146,27 +166,39 @@
                     return;
                 }
 
-                saldoEnMemoria = saldoEnMemoria - monto;
-                localStorage.setItem('saldo', saldoEnMemoria.toString());
+                let nuevoSaldo = saldoEnMemoria - monto;
 
-                let historial = JSON.parse(localStorage.getItem('historialTransacciones')) || [];
-                let nuevaTransaccion = {
-                    id: Date.now(),
-                    tipo: 'compra',
-                    monto: monto,
-                    detalle: 'Envío a: ' + destino
-                };
-                historial.push(nuevaTransaccion);
-                localStorage.setItem('historialTransacciones', JSON.stringify(historial));
+                $.ajax({
+                    url: 'http://localhost:3000/usuarios/1',
+                    type: 'PATCH',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ saldo: nuevoSaldo }),
+                    success: function () {
+                        let nuevaTransaccion = {
+                            tipo: 'compra',
+                            monto: monto,
+                            detalle: 'Envío a: ' + destino
+                        };
 
-                $('#saldoDisponibleInput').val('$' + saldoEnMemoria.toLocaleString('es-CL'));
+                        $.ajax({
+                            url: 'http://localhost:3000/transacciones',
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify(nuevaTransaccion),
+                            success: function () {
+                                saldoEnMemoria = nuevoSaldo;
+                                $('#saldoDisponibleInput').val('$' + saldoEnMemoria.toLocaleString('es-CL'));
 
-                let exitoAlert = '<div class="alert alert-success">Envío realizado con éxito a ' + destino + '</div>';
-                $('#alert-container').html(exitoAlert);
+                                let exitoAlert = '<div class="alert alert-success">Envío realizado con éxito a ' + destino + '</div>';
+                                $('#alert-container').html(exitoAlert);
 
-                $('#seccionTransferencia').addClass('d-none');
-                $('#montoTransferir').val('');
-                $('.contacto-item').removeClass('seleccionado');
+                                $('#seccionTransferencia').addClass('d-none');
+                                $('#montoTransferir').val('');
+                                $('.contacto-item').removeClass('seleccionado');
+                            }
+                        });
+                    }
+                });
             });
         });
     </script>

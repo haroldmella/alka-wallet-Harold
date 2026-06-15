@@ -30,8 +30,9 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
         $(document).ready(function () {
-            let saldoActual = localStorage.getItem('saldo') || "0";
-            $('#saldoDisplay').text('$' + parseFloat(saldoActual).toLocaleString('es-CL'));
+            $.getJSON('http://localhost:3000/usuarios/1', function (usuario) {
+                $('#saldoDisplay').text('$' + parseFloat(usuario.saldo).toLocaleString('es-CL'));
+            });
 
             function navegarA(pantalla, archivo) {
                 $('#leyendaRedireccion').removeClass('d-none').text('Redirigiendo a ' + pantalla);

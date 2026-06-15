@@ -33,17 +33,6 @@
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script>
         $(document).ready(function () {
-            let transaccionesGuardadas = JSON.parse(localStorage.getItem('historialTransacciones'));
-
-            if (transaccionesGuardadas === null) {
-                transaccionesGuardadas = [
-                    { id: 1, tipo: 'compra', monto: 4500, detalle: 'Supermercado Líder' },
-                    { id: 2, tipo: 'deposito', monto: 15000, detalle: 'Cajero Automático' },
-                    { id: 3, tipo: 'transferencia_recibida', monto: 25000, detalle: 'De: Pedro Marmol' }
-                ];
-                localStorage.setItem('historialTransacciones', JSON.stringify(transaccionesGuardadas));
-            }
-
             function getTipoTransaccion(tipo) {
                 if (tipo === 'compra') return 'Envío / Compra';
                 if (tipo === 'deposito') return 'Depósito';
@@ -54,13 +43,13 @@
             function mostrarUltimosMovimientos(filtro) {
                 $('#listaMovimientosContainer').empty();
 
-                let listaActual = JSON.parse(localStorage.getItem('historialTransacciones')) || [];
-
-                listaActual.forEach(function (t) {
-                    if (filtro === 'todos' || t.tipo === filtro) {
-                        let itemHtml = '<li class="list-group-item d-flex justify-content-between"><div><strong>' + t.detalle + '</strong><br><small>' + getTipoTransaccion(t.tipo) + '</small></div><span>$' + t.monto.toLocaleString('es-CL') + '</span></li>';
-                        $('#listaMovimientosContainer').append(itemHtml);
-                    }
+                $.getJSON('http://localhost:3000/transacciones', function (listaActual) {
+                    listaActual.forEach(function (t) {
+                        if (filtro === 'todos' || t.tipo === filtro) {
+                            let itemHtml = '<li class="list-group-item d-flex justify-content-between"><div><strong>' + t.detalle + '</strong><br><small>' + getTipoTransaccion(t.tipo) + '</small></div><span>$' + t.monto.toLocaleString('es-CL') + '</span></li>';
+                            $('#listaMovimientosContainer').append(itemHtml);
+                        }
+                    });
                 });
             }
 
